@@ -109,8 +109,9 @@ jobs:
             fi
       - when:
           condition:
+            and:
             - not:
-               - equal: ["$OLD_DEPLOYMENT_ID", "Not Found"]
+                equal: [ "$OLD_DEPLOYMENT_ID", "Not Found" ]
           steps:
             - aws-eks/delete-cluster:
                 cluster-name: deployment-${OLD_DEPLOYMENT_ID}
