@@ -85,8 +85,7 @@ jobs:
           name: forward port
           command: |
             kubectl wait deployment green-deployment --for condition=Available=True --timeout=90s
-            kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service   
-            kubectl port-forward deployment/green-deployment 80:80
+            kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service  
   delete-old-deployment:
     docker:
       - image: 'cimg/python:3.10'
