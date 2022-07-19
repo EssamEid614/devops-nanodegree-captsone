@@ -91,12 +91,14 @@ workflows:
           requires: [test, lint]
       - aws-eks/create-cluster:
           cluster-name: green-deployment
+          node-type: t2.micro
       - create-deployment:
           cluster-name: green-deployment
           requires:
             - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: green-deployment
+          resource-name: green-deployment
           container-image-updates: 'essameid614/udacity_nanodegree_capstone:latest'
           requires:
             - create-deployment
