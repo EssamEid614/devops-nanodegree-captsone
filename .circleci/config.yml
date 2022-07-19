@@ -49,6 +49,7 @@ jobs:
           command: |
             chmod +x upload_docker.sh
             echo $username
+            service docker start
             docker login -u $username -p $password
             ./upload_docker.sh
   
