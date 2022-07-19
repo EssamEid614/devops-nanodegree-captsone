@@ -10,8 +10,8 @@ dockerpath=essameid614/udacity_nanodegree_capstone
 # Step 2:  
 # Authenticate & tag
 echo "Docker ID and Image: $dockerpath"
-docker tag udacity_nanodegree_capstone $dockerpath:latest
-
+docker tag udacity_nanodegree_capstone:latest $dockerpath:latest
+docker images
 # Step 3:
 # Push image to a docker repository
 docker push $dockerpath:latest
