@@ -41,7 +41,7 @@ jobs:
             npm run test
   pushToDockerhub:    
     docker:
-      - image: circleci/buildpack-deps
+      - image: docker:stable
     steps:
       - checkout
       - run:
@@ -49,8 +49,8 @@ jobs:
           command: |
             chmod +x upload_docker.sh
             echo $username
-            service docker start
             docker login -u $username -p $password
+            docker build --tag=nanodegree_capstone .
             ./upload_docker.sh
   
 #start deployment
