@@ -81,56 +81,44 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           resource-file-path: k8s.yaml
-          get-rollout-status: true
       - run:
           name: forward port
           command: |
+            kubectl wait deployment green-deployment --for condition=Available=True --timeout=90s
             kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service   
             kubectl port-forward deployment/green-deployment 80:80
+  delete-old-deployment:
+    docker:
+      - image: 'cimg/python:3.10'
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: get previous deployment url
+          command: |
+            oldDeploymentId=$(curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id --insecure)
+            export OLD_DEPLOYMENT_ID = oldDeploymentId
+            if(( $OLD_DEPLOYMENT_ID!="Not Found" )); 
+            then
+              aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-nodegroup-ng-${OLD_DEPLOYMENT_ID}"
+              aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-cluster"
+            fi
+      - when:
+          condition:
+            - not:
+               - equal: ["$OLD_DEPLOYMENT_ID", "Not Found"]
+          steps:
+            - aws-eks/delete-cluster:
+                cluster-name: deployment-${OLD_DEPLOYMENT_ID}
       - run:
           name: save workflowId
           command: |
             echo ${CIRCLE_WORKFLOW_ID:0:7}
-            curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure   
-  # delete-old-deployment:
-  #   docker:
-  #     - image: 'cimg/python:3.10'
-  #   parameters:
-  #     cluster-name:
-  #       description: |
-  #         Name of the EKS cluster
-  #       type: string
-  #   steps:
-  #     - checkout
-  #     - aws-eks/create-cluster:
-  #         cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-  #         node-type: t2.small
-  #         ssh-access: true
-  #         nodes: 1
-  #         external-dns-access: true
-  #         show-eksctl-command: true
-  #         nodegroup-name: ng-${CIRCLE_WORKFLOW_ID:0:7}
-  #     - aws-eks/update-kubeconfig-with-authenticator:
-  #         cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-  #         install-kubectl: true
-  #     - kubernetes/create-or-update-resource:
-  #         resource-file-path: k8s.yaml
-  #         get-rollout-status: true
-  #     - run:
-  #         name: forward port
-  #         command: |
-  #           kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service   
-  #           kubectl port-forward deployment/green-deployment 80:80
-  #     - run:
-  #         name: save workflowId
-  #         command: |
-  #           echo ${CIRCLE_WORKFLOW_ID:0:7}
-  #           curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure     
-
-#get old eks cluster id
-#create the eks cluster
-#deploy the app to the eks cluster
-#delete old eks cluster
+            curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure
 
 workflows:
   default:
@@ -151,3 +139,7 @@ workflows:
           container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
           requires:
             - create-deployment
+      - delete-old-deployment:
+          requires:
+            - aws-eks/update-container-image
+          type: approval
