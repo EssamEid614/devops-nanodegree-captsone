@@ -76,7 +76,7 @@ jobs:
           show-eksctl-command: true
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: green-deployment-1
-      install-kubectl: true
+          install-kubectl: true
       - kubernetes/create-or-update-resource:
           resource-file-path: k8s.yaml
 #get old eks cluster id
