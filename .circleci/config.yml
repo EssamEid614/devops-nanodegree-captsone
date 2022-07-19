@@ -71,8 +71,8 @@ jobs:
           cluster-name: green-deployment
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          get-rollout-status: true
-          resource-name: deployment/nginx-deployment
+          resource-name: deployment/green-deployment
+          resource-file-path: k8s.yaml
 #get old eks cluster id
 #create the eks cluster 
 #deploy the app to the eks cluster 
