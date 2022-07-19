@@ -41,21 +41,17 @@ jobs:
             npm run test
   pushToDockerhub:    
     docker:
-      - image: docker:stable
+      - image: circleci/node:13.8.0
+        auth:
+          username: $username
+          password: $password
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: push to docker hub
           command: |
             chmod +x upload_docker.sh
-            echo $username
-            docker run --privileged --name some-docker -d \
-            --network some-network --network-alias docker \
-            -e DOCKER_TLS_CERTDIR=/certs \
-            -v some-docker-certs-ca:/certs/ca \
-            -v some-docker-certs-client:/certs/client \
-            docker:dind
-            docker login -u $username -p $password
             docker build --tag=nanodegree_capstone .
             ./upload_docker.sh
   
