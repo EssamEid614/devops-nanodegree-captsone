@@ -52,7 +52,7 @@ jobs:
           name: push to docker hub
           command: |
             chmod +x upload_docker.sh
-            docker build --tag=nanodegree_capstone .
+            docker build --tag=essameid614/udacity_nanodegree_capstone:latest .
             ./upload_docker.sh
   
 #start deployment
