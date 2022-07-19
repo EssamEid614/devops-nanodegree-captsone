@@ -67,8 +67,6 @@ jobs:
         type: string
     steps:
       - checkout
-      - aws-eks/delete-cluster:
-          cluster-name: green-deployment-3
       - aws-eks/create-cluster:
           cluster-name: green-deployment-3
           node-type: t2.small
