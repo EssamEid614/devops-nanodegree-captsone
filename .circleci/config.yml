@@ -79,6 +79,10 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           resource-file-path: k8s.yaml
+      - run:
+          name: forward port
+          command: |
+            kubectl port-forward deployment/green-deployment 80:80
 #get old eks cluster id
 #create the eks cluster 
 #deploy the app to the eks cluster 
