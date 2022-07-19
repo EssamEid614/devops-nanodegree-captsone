@@ -67,7 +67,7 @@ jobs:
         type: string
     steps:
       - checkout
-      -aws-eks/delete-cluster:
+      - aws-eks/delete-cluster:
           cluster-name: green-deployment-2
       - aws-eks/create-cluster:
           cluster-name: green-deployment-2
