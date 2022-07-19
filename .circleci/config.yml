@@ -88,12 +88,12 @@ workflows:
       - pushToDockerhub:
           context: docker-context
           requires: [test, lint]
-      - aws-eks/create-cluster:
-          cluster-name: green-deployment-1
+      # - aws-eks/create-cluster:
+      #     cluster-name: green-deployment-1
       - create-deployment:
           cluster-name: green-deployment-1
-          requires:
-            - aws-eks/create-cluster
+          # requires:
+          #   - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: green-deployment
           resource-name: deployment/green-deployment
