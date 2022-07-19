@@ -67,13 +67,15 @@ jobs:
         type: string
     steps:
       - checkout
-      # - aws-eks/create-cluster:
-      #     cluster-name: green-deployment-2
-      #     node-type: t2.micro
-      #     ssh-access: true
-      #     nodes: 1
-      #     external-dns-access: true
-      #     show-eksctl-command: true
+      -aws-eks/delete-cluster:
+          cluster-name: green-deployment-2
+      - aws-eks/create-cluster:
+          cluster-name: green-deployment-2
+          node-type: t2.small
+          ssh-access: true
+          nodes: 1
+          external-dns-access: true
+          show-eksctl-command: true
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: green-deployment-2
           install-kubectl: true
