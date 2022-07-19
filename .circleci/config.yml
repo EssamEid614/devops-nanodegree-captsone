@@ -71,7 +71,6 @@ jobs:
           cluster-name: green-deployment
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          resource-name: deployment/green-deployment
           resource-file-path: k8s.yaml
 #get old eks cluster id
 #create the eks cluster 
@@ -90,14 +89,14 @@ workflows:
           context: docker-context
           requires: [test, lint]
       - aws-eks/create-cluster:
-          cluster-name: green-deployment
+          cluster-name: green-deployment-1
       - create-deployment:
-          cluster-name: green-deployment
+          cluster-name: green-deployment-1
           requires:
             - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: green-deployment
-          resource-name: green-deployment
+          resource-name: deployment/green-deployment
           container-image-updates: 'essameid614/udacity_nanodegree_capstone:latest'
           requires:
             - create-deployment
