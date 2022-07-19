@@ -92,6 +92,7 @@ workflows:
       - aws-eks/create-cluster:
           cluster-name: green-deployment
           node-type: t2.micro
+          nodes: 1
       - create-deployment:
           cluster-name: green-deployment
           requires:
