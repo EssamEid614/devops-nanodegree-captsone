@@ -68,14 +68,14 @@ jobs:
     steps:
       - checkout
       - aws-eks/create-cluster:
-          cluster-name: green-deployment-1
+          cluster-name: green-deployment-2
           node-type: t2.micro
           ssh-access: true
           nodes: 1
           external-dns-access: true
           show-eksctl-command: true
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: green-deployment-1
+          cluster-name: green-deployment-2
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           resource-file-path: k8s.yaml
@@ -102,7 +102,7 @@ workflows:
       # - aws-eks/create-cluster:
       #     cluster-name: green-deployment-1
       - create-deployment:
-          cluster-name: green-deployment-1
+          cluster-name: green-deployment-2
           # requires:
           #   - aws-eks/create-cluster
       # - aws-eks/update-container-image:
