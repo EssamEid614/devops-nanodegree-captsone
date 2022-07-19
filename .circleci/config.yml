@@ -39,6 +39,25 @@ jobs:
           command: |
             npm install
             npm run test
+  pushToDockerhub:    
+    docker:
+      - image: circleci/buildpack-deps
+    steps:
+      - checkout
+      - run:
+          name: push to docker hub
+          command: |
+            chmod +x upload_docker.sh
+            echo $username
+            docker login -u $username -p $password
+            ./upload_docker.sh
+  
+#start deployment
+#create the image to be deployed to docker hub
+#deploy the image to docker hub
+#create the eks cluster 
+#deploy the app to the eks cluster 
+
 workflows:
   default:
     jobs:
@@ -47,3 +66,6 @@ workflows:
           requires: [build]
       - lint:
           requires: [build]
+      - pushToDockerhub:
+          context: docker-context
+          requires: [test, lint]
