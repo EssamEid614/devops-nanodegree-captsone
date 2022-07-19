@@ -1,4 +1,6 @@
 version: 2.1
+orbs: 
+  aws-eks: circleci/aws-eks@2.2.0
 jobs:
   build:    
     docker:
@@ -54,12 +56,26 @@ jobs:
             chmod +x upload_docker.sh
             docker build --tag=essameid614/udacity_nanodegree_capstone:latest .
             ./upload_docker.sh
-  
-#start deployment
-#create the image to be deployed to docker hub
-#deploy the image to docker hub
+  create-deployment:
+    docker:
+      - image: 'cimg/python:3.10'
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: green-deployment
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-name: deployment/nginx-deployment
+#get old eks cluster id
 #create the eks cluster 
 #deploy the app to the eks cluster 
+#delete old eks cluster 
 
 workflows:
   default:
@@ -72,3 +88,14 @@ workflows:
       - pushToDockerhub:
           context: docker-context
           requires: [test, lint]
+      - aws-eks/create-cluster:
+          cluster-name: green-deployment
+      - create-deployment:
+          cluster-name: green-deployment
+          requires:
+            - aws-eks/create-cluster
+      - aws-eks/update-container-image:
+          cluster-name: green-deployment
+          container-image-updates: 'essameid614/udacity_nanodegree_capstone:latest'
+          requires:
+            - create-deployment
