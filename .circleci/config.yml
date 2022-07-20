@@ -102,6 +102,7 @@ jobs:
               aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-nodegroup-ng-${OLD_DEPLOYMENT_ID}"
               aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-cluster"
             fi
+            exit 0
       - when:
           condition:
             and:
