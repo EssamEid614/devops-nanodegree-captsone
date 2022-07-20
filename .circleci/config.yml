@@ -99,9 +99,11 @@ jobs:
             echo $OLD_DEPLOYMENT_ID
             if [ "$OLD_DEPLOYMENT_ID" != "Not Found" ]; 
             then
-              aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-nodegroup-ng-${OLD_DEPLOYMENT_ID}"
-              aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-cluster"
+            echo "found an old deployment"
+            aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-nodegroup-ng-${OLD_DEPLOYMENT_ID}"
+            aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-cluster"
             else
+            echo "didnt find an old deployment"
             circleci-agent step halt
             fi
 
@@ -115,6 +117,11 @@ jobs:
           command: |
             oldDeploymentId=$(curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id --insecure)
             export OLD_DEPLOYMENT_ID=$oldDeploymentId
+            echo $OLD_DEPLOYMENT_ID
+            if [ "$OLD_DEPLOYMENT_ID" == "Not Found" ]; 
+            then
+            circleci-agent step halt
+            fi
       - aws-eks/delete-cluster:
           cluster-name: deployment-${OLD_DEPLOYMENT_ID}
   
