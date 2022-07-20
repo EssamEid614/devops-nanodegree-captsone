@@ -140,7 +140,7 @@ workflows:
           requires:
             - aws-eks/update-container-image
           type: approval
-      - delete-old-deployment
+      - delete-old-deployment:
           requires:
             - hold
       - save-to-kvdb:
