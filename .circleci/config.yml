@@ -89,11 +89,6 @@ jobs:
   delete-old-deployment:
     docker:
       - image: 'cimg/python:3.10'
-    parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
-        type: string
     steps:
       - checkout
       - run:
