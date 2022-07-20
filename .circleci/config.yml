@@ -105,8 +105,8 @@ jobs:
       - when:
           condition:
             and:
-            - not:
-                equal: [ "$OLD_DEPLOYMENT_ID", "Not Found" ]
+              - not:
+                  equal: [ "$OLD_DEPLOYMENT_ID", "Not Found" ]
           steps:
             - run: echo $OLD_DEPLOYMENT_ID
             - aws-eks/delete-cluster:
