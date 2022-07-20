@@ -95,9 +95,9 @@ jobs:
           name: get previous deployment url
           command: |
             oldDeploymentId=$(curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id --insecure)
-            export OLD_DEPLOYMENT_ID=oldDeploymentId
+            export OLD_DEPLOYMENT_ID=$oldDeploymentId
             echo $OLD_DEPLOYMENT_ID
-            if(( $OLD_DEPLOYMENT_ID!="Not Found" )); 
+            if [ "$OLD_DEPLOYMENT_ID" != "Not Found" ]; 
             then
               aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-nodegroup-ng-${OLD_DEPLOYMENT_ID}"
               aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-cluster"
@@ -108,6 +108,7 @@ jobs:
             - not:
                 equal: [ "$OLD_DEPLOYMENT_ID", "Not Found" ]
           steps:
+            - run: echo $OLD_DEPLOYMENT_ID
             - aws-eks/delete-cluster:
                 cluster-name: deployment-${OLD_DEPLOYMENT_ID}
       - run:
