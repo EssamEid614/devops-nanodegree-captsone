@@ -123,23 +123,26 @@ jobs:
 workflows:
   default:
     jobs:
-      - build
-      - test:
-          requires: [build]
-      - lint:
-          requires: [build]
-      - pushToDockerhub:
-          context: docker-context
-          requires: [test, lint]
-      - create-deployment:
-          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-      - aws-eks/update-container-image:
-          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-          resource-name: deployment/green-deployment
-          container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
-          requires:
-            - create-deployment
+      # - build
+      # - test:
+      #     requires: [build]
+      # - lint:
+      #     requires: [build]
+      # - pushToDockerhub:
+      #     context: docker-context
+      #     requires: [test, lint]
+      # - create-deployment:
+      #     cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+      # - aws-eks/update-container-image:
+      #     cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+      #     resource-name: deployment/green-deployment
+      #     container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
+      #     requires:
+      #       - create-deployment
+      # - hold:
+      #     requires:
+      #       - aws-eks/update-container-image
+      #     type: approval
       - delete-old-deployment:
-          requires:
-            - aws-eks/update-container-image
-          type: approval
+          # requires:
+            # - hold
