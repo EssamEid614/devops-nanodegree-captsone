@@ -88,7 +88,7 @@ jobs:
             kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service  
   delete-old-deployment:
     docker:
-      - image: 'cimg/python:3.10'
+      - image: 'cimg/aws:2022.06'
     steps:
       - checkout
       - run:
@@ -104,6 +104,17 @@ jobs:
             else
             circleci-agent step halt
             fi
+
+  delete-old-kubernetes-cluster:
+    docker:
+      - image: 'cimg/python:3.10'
+    steps:
+      - checkout
+      - run:
+          name: get previous deployment url
+          command: |
+            oldDeploymentId=$(curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id --insecure)
+            export OLD_DEPLOYMENT_ID=$oldDeploymentId
       - aws-eks/delete-cluster:
           cluster-name: deployment-${OLD_DEPLOYMENT_ID}
   
@@ -120,30 +131,35 @@ jobs:
 workflows:
   default:
     jobs:
-      - build
-      - test:
-          requires: [build]
-      - lint:
-          requires: [build]
-      - pushToDockerhub:
-          context: docker-context
-          requires: [test, lint]
-      - create-deployment:
-          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-          requires: [pushToDockerhub]
-      - aws-eks/update-container-image:
-          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-          resource-name: deployment/green-deployment
-          container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
-          requires:
-            - create-deployment
-      - hold:
-          requires:
-            - aws-eks/update-container-image
-          type: approval
-      - delete-old-deployment:
-          requires:
-            - hold
-      - save-to-kvdb:
+      # - build
+      # - test:
+      #     requires: [build]
+      # - lint:
+      #     requires: [build]
+      # - pushToDockerhub:
+      #     context: docker-context
+      #     requires: [test, lint]
+      # - create-deployment:
+      #     cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+      #     requires: [pushToDockerhub]
+      # - aws-eks/update-container-image:
+      #     cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+      #     resource-name: deployment/green-deployment
+      #     container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
+      #     requires:
+      #       - create-deployment
+      # - hold:
+      #     requires:
+      #       - aws-eks/update-container-image
+      #     type: approval
+      - delete-old-deployment
+          # requires:
+            # - hold
+      
+      - delete-old-kubernetes-cluster:
           requires:
             - delete-old-deployment
+      
+      - save-to-kvdb:
+          requires:
+            - delete-old-kubernetes-cluster
