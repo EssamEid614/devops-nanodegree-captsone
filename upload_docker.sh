@@ -5,7 +5,7 @@
 
 # Step 1:
 # Create dockerpath
-dockerpath=essameid614/udacity_nanodegree_capstone
+dockerpath=essameid614/udacity_nanodegree_capstone:latest
 
 # Step 2:  
 # Authenticate & tag
@@ -14,4 +14,4 @@ docker images
 # Step 3:
 # Push image to a docker repository
 docker login -u $username --password $password
-docker push $dockerpath:latest
+docker push 
