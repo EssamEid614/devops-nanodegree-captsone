@@ -95,7 +95,7 @@ jobs:
           name: get previous deployment url
           command: |
             oldDeploymentId=$(curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id --insecure)
-            export OLD_DEPLOYMENT_ID = oldDeploymentId
+            export OLD_DEPLOYMENT_ID=oldDeploymentId
             echo $OLD_DEPLOYMENT_ID
             if(( $OLD_DEPLOYMENT_ID!="Not Found" )); 
             then
