@@ -101,17 +101,21 @@ jobs:
             then
               aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-nodegroup-ng-${OLD_DEPLOYMENT_ID}"
               aws cloudformation delete-stack --stack-name "eksctl-deployment-${OLD_DEPLOYMENT_ID}-cluster"
-            fi
+            else
             circleci-agent step halt
-      - when:
-          condition:
-            and:
-              - not:
-                  equal: [ "$OLD_DEPLOYMENT_ID", "Not Found" ]
-          steps:
-            - run: echo $OLD_DEPLOYMENT_ID
-            - aws-eks/delete-cluster:
-                cluster-name: deployment-${OLD_DEPLOYMENT_ID}
+            fi
+      - aws-eks/delete-cluster:
+          cluster-name: deployment-${OLD_DEPLOYMENT_ID}
+      - run:
+          name: save workflowId
+          command: |
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
+            curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure
+  
+  save-to-kvdb:
+    docker:
+      - image: 'cimg/python:3.10'
+    steps:
       - run:
           name: save workflowId
           command: |
@@ -144,3 +148,6 @@ workflows:
       - delete-old-deployment
           # requires:
             # - hold
+      - save-to-kvdb:
+          requires:
+            - delete-old-deployment
