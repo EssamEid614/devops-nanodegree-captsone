@@ -106,11 +106,6 @@ jobs:
             fi
       - aws-eks/delete-cluster:
           cluster-name: deployment-${OLD_DEPLOYMENT_ID}
-      - run:
-          name: save workflowId
-          command: |
-            echo ${CIRCLE_WORKFLOW_ID:0:7}
-            curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure
   
   save-to-kvdb:
     docker:
@@ -120,34 +115,34 @@ jobs:
           name: save workflowId
           command: |
             echo ${CIRCLE_WORKFLOW_ID:0:7}
-            curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "b991588" --insecure
+            curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure
 
 workflows:
   default:
     jobs:
-      # - build
-      # - test:
-      #     requires: [build]
-      # - lint:
-      #     requires: [build]
-      # - pushToDockerhub:
-      #     context: docker-context
-      #     requires: [test, lint]
-      # - create-deployment:
-      #     cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-      # - aws-eks/update-container-image:
-      #     cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
-      #     resource-name: deployment/green-deployment
-      #     container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
-      #     requires:
-      #       - create-deployment
-      # - hold:
-      #     requires:
-      #       - aws-eks/update-container-image
-      #     type: approval
+      - build
+      - test:
+          requires: [build]
+      - lint:
+          requires: [build]
+      - pushToDockerhub:
+          context: docker-context
+          requires: [test, lint]
+      - create-deployment:
+          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+      - aws-eks/update-container-image:
+          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+          resource-name: deployment/green-deployment
+          container-image-updates: 'green-deployment=essameid614/udacity_nanodegree_capstone:latest'
+          requires:
+            - create-deployment
+      - hold:
+          requires:
+            - aws-eks/update-container-image
+          type: approval
       - delete-old-deployment
-          # requires:
-            # - hold
+          requires:
+            - hold
       - save-to-kvdb:
           requires:
             - delete-old-deployment
