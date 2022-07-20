@@ -130,6 +130,7 @@ workflows:
           requires: [test, lint]
       - create-deployment:
           cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+          requires: [pushToDockerhub]
       - aws-eks/update-container-image:
           cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
           resource-name: deployment/green-deployment
