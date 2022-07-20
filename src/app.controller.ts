@@ -7,7 +7,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    bdsfmd;slfaj
     return this.appService.getHello();
   }
 }
