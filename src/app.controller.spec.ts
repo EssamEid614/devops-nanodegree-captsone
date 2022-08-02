@@ -16,7 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Hello World from new deployment!"', () => {
-      expect(appController.getHello()).toBe('Hello World from new deployment!');
+      expect(appController.getHello()).toBe('Hello world from new deployment!');
     });
   });
 });
