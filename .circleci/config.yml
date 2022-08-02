@@ -85,7 +85,7 @@ jobs:
           name: forward port
           command: |
             kubectl wait deployment green-deployment --for condition=Available=True --timeout=90s
-            kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service  
+            kubectl expose deployment green-deployment --type=LoadBalancer --name=exposing-service
   delete-old-deployment:
     docker:
       - image: 'cimg/aws:2022.06'
@@ -124,8 +124,8 @@ jobs:
             fi
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
             sudo mv /tmp/eksctl /usr/local/bin
-            eksctl delete cluster --name deployment-${OLD_DEPLOYMENT_ID} 
-  
+            eksctl delete cluster --name deployment-${OLD_DEPLOYMENT_ID}
+
   save-to-kvdb:
     docker:
       - image: 'cimg/python:3.10'
@@ -135,6 +135,27 @@ jobs:
           command: |
             echo ${CIRCLE_WORKFLOW_ID:0:7}
             curl https://kvdb.io/HEQp43YFYGj56DGfK6G1T4/last_deployment_id -d "${CIRCLE_WORKFLOW_ID:0:7}" --insecure
+
+  smoke-test:
+    docker:
+      - image: 'cimg/python:3.10'
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: k8s.yaml
+      - run:
+          name: smoke test the new deployment
+          command: |
+            serverHostname=$(kubectl get service/exposing-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+            curl $serverHostname
 
 workflows:
   default:
@@ -160,14 +181,18 @@ workflows:
           requires:
             - aws-eks/update-container-image
           type: approval
-      - delete-old-deployment:
+      - smoke-test:
+          cluster-name: deployment-${CIRCLE_WORKFLOW_ID:0:7}
           requires:
             - hold
-      
+      - delete-old-deployment:
+          requires:
+            - smoke-test
+
       - delete-old-kubernetes-cluster:
           requires:
             - delete-old-deployment
-      
+
       - save-to-kvdb:
           requires:
             - delete-old-kubernetes-cluster
