@@ -14,4 +14,4 @@ docker images
 # Step 3:
 # Push image to a docker repository
 docker login -u $username --password $password
-docker push 
+docker push .
