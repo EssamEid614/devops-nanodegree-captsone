@@ -6,10 +6,9 @@ WORKDIR /
 ## Step 2:
 # Copy source code to working directory
 COPY . src /
-COPY . package.json /app/
+COPY . package.json /
 ## Step 3:
-# Install packages from requirements.txt
-# hadolint ignore=DL3013
+# Install packages
 RUN npm install
  
 ## Step 4:
@@ -17,6 +16,6 @@ RUN npm install
 EXPOSE 80
 
 ## Step 5:
-# Run app.py at container launch
+# Run the app at container launch
 CMD ["npm", "run","start"]
 
